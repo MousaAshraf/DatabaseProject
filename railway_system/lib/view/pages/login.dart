@@ -10,7 +10,7 @@ class Login extends StatefulWidget {
 
 class _LoginPageState extends State<Login> {
   final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _password_hashController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   void _login() {
@@ -72,15 +72,15 @@ class _LoginPageState extends State<Login> {
                       ),
                       const SizedBox(height: 10),
                       TextFormField(
-                        controller: _passwordController,
+                        controller: _password_hashController,
                         decoration: const InputDecoration(
-                          labelText: 'Password',
+                          labelText: 'password_hash',
                           border: OutlineInputBorder(),
                         ),
                         obscureText: true,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Password is required';
+                            return 'password_hash is required';
                           }
                           return null;
                         },
@@ -100,7 +100,7 @@ class _LoginPageState extends State<Login> {
                           ),
                           TextButton(
                             onPressed: () {},
-                            child: const Text('Forgot Password?'),
+                            child: const Text('Forgot password_hash?'),
                           ),
                         ],
                       ),
