@@ -101,7 +101,7 @@ def test_admin(client):
     response = client.post("/users/", json=admin_data)
     assert response.status_code == 201
     return response.json()
-
+    
 
 @pytest.fixture
 def admin_auth_headers(client, test_admin):

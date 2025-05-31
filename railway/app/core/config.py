@@ -13,7 +13,7 @@ class Settings(BaseSettings):
         "ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SmpiR0Z6Y3lJNklrMWxjbU5vWVc1MElpd2ljSEp2Wm1sc1pWOXdheUk2TVRBME9UQTRPQ3dpYm1GdFpTSTZJbWx1YVhScFlXd2lmUS4wQURXQmxPZkZvMVAyU2pDd19kRjVLeUVfb1p2U0x4T0l6Wlk0TTdIbV9STkdMazRiU3MzYnQ5dUJ4cnFsRmJodlkyM2h5UElSTWN2eFVlYWFzaURZQQ"
     )
     paymob_hmac_secret: str = "8FA05AAC0BBFE7FDFAE6A1FEE4BBD08D"
-    paymob_integration_id: str = "5110518"
+    paymob_integration_id: str = "5110490"
     paymob_iframe_id: str = "927048"
     paymob_merchant_id: str = "1049088"
 

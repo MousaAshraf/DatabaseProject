@@ -8,13 +8,16 @@ from io import BytesIO
 import base64
 from core.config import get_settings
 
+import json
+
+
 settings = get_settings()
-
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+print(pwd_context.hash("admin123"))
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/")
 
 
-def verify_password_hash(plain_password: str, hashed_password: str) -> bool:
+def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
@@ -46,27 +49,6 @@ def decode_token(token: str):
         return payload
     except JWTError:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,  # Changed from 404
+            status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication credentials",
-            headers={"WWW-Authenticate": "Bearer"},
         )
-
-
-def generate_qr_code(data: str) -> str:
-    if not data or not isinstance(data, str) or not data.strip():
-        raise ValueError("Invalid QR code data")
-
-    qr = qrcode.QRCode(
-        version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_L,
-        box_size=10,
-        border=4,
-    )
-    qr.add_data(data)
-    qr.make(fit=True)
-
-    img = qr.make_image(fill_color="black", back_color="white")
-    buffer = BytesIO()
-    img.save(buffer, format="PNG")
-    img_str = base64.b64encode(buffer.getvalue()).decode()
-    return f"data:image/png;base64,{img_str}"

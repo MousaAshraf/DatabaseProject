@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from db.database import get_db
 from schemas.payment import PaymentCallback, PaymentBase
@@ -77,3 +77,30 @@ def redirect_to_paymob():
     return RedirectResponse(
         f"https://accept.paymobsolutions.com/api/acceptance/post_pay?payment_token={payment_token}"
     )
+
+
+@router.post("/webhook")
+async def paymob_webhook(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    try:
+        data = await request.json()
+        paymob_manager = PaymobManager()
+
+        # Verify HMAC from headers
+        received_hmac = request.headers.get("hmac")
+        if not paymob_manager.verify_hmac(data["obj"], received_hmac):
+            raise HTTPException(status_code=400, detail="Invalid HMAC")
+
+        # Process the transaction
+        if data["obj"]["success"]:
+            # Update your payment status
+            # Generate and store the ticket QR code
+            return {"status": "success"}
+        else:
+            return {"status": "failed", "reason": data["obj"].get("error_occured")}
+
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))

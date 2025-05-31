@@ -48,7 +48,7 @@ def delete_user(db: Session, user_id: int):
 
 
 def update_user_role(db: Session, user_id: int, new_role: str):
-    user = db.query(User).filter(User.id == user_id).first()
+    user = db.query(User).filter(User.UserID == user_id).first()
     if not user:
         return None
 
@@ -64,7 +64,7 @@ def update_user_info(
     email: str = None,
     phone: str = None,
 ):
-    user = db.query(User).filter(User.id == user_id).first()
+    user = db.query(User).filter(User.UserID == user_id).first()
     if not user:
         return None
 

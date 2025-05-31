@@ -18,8 +18,6 @@ class AdminAuth(AuthenticationBackend):
             return True
         return False
 
-    print()
-
     async def logout(self, request: Request) -> bool:
         request.session.clear()
         return True
@@ -29,7 +27,9 @@ class AdminAuth(AuthenticationBackend):
         return token == "admin-token"
 
 
-# Model views
+# Model view
+
+
 class UserAdmin(ModelView, model=User):
     column_list = [
         User.id,
@@ -55,6 +55,7 @@ class TicketAdmin(ModelView, model=Ticket):
         Ticket.entry_time,
         Ticket.exit_time,
         Ticket.fare_paid,
+        Ticket.created_at,
     ]
     can_export = True
     name_plural = "Tickets"
@@ -62,7 +63,9 @@ class TicketAdmin(ModelView, model=Ticket):
 
 
 class StationAdmin(ModelView, model=Station):
+
     column_list = [Station.id, Station.line, Station.name, Station.zone]
+    form_columns = [Station.line, Station.name, Station.station_order, Station.zone]
     name_plural = "Stations"
     icon = "fa-solid fa-train-station"
 

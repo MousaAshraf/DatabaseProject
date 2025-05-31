@@ -4,6 +4,7 @@ from typing import Optional
 
 
 class TicketBase(BaseModel):
+    user_id: str
     start_station_id: str
     end_station_id: str
 
@@ -12,16 +13,18 @@ class TicketCreate(TicketBase):
     pass
 
 
-class TicketResponse(TicketBase):
+class TicketResponse(BaseModel):
     id: str
-    userid: str
+    user_id: str
+    start_station_id: str
+    end_station_id: str
     qr_code: str
     stations_count: int
     fare_paid: float
     status: str
-    created_at: datetime
-    entry_time: Optional[datetime]
-    exit_time: Optional[datetime]
+    created_at: Optional[datetime] = None
+    entry_time: Optional[datetime] = None
+    exit_time: Optional[datetime] = None
     expires_at: datetime
 
     model_config = {

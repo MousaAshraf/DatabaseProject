@@ -104,13 +104,16 @@ class Subscription(Base):
     # Relationships
     user = relationship("User", back_populates="subscriptions")
 
+    def __str__(self):
+        return self.plan_type
+
 
 class Ticket(Base):
     __tablename__ = "tickets"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
     user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
-    qr_code = Column(String(255), unique=True, nullable=False)
+    qr_code = Column(Text, unique=True, nullable=False)
     start_station_id = Column(String(36), ForeignKey("stations.id"), nullable=False)
     end_station_id = Column(String(36), ForeignKey("stations.id"), nullable=False)
     stations_count = Column(Integer, nullable=False)
@@ -133,6 +136,9 @@ class Ticket(Base):
     )
     payments = relationship("Payment", back_populates="ticket")
     scan_logs = relationship("ScanLog", back_populates="ticket")
+
+    def __str__(self):
+        return self.id
 
 
 class Payment(Base):
