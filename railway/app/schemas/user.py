@@ -1,7 +1,8 @@
 from pydantic import BaseModel, field_validator, EmailStr
 import re
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
+from schemas.subscription import SubscriptionResponse
 
 EGYPT_PHONE_REGEX = r"^\+20(10|11|12|15)[0-9]{8}$"
 
@@ -65,7 +66,7 @@ class UserLogin(BaseModel):
 
 class Token(BaseModel):
     access_token: str
-    token_type: str = "bearer"
+    token_type: str
 
 
 class TokenData(BaseModel):

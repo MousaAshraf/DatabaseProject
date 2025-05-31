@@ -1,9 +1,9 @@
 from fastapi import status
-from core.security import verify_password_hash, create_access_token
+from core.security import verify_password, create_access_token
 
 
 def test_verify_password_hash():
-    assert verify_password_hash(
+    assert verify_password(
         "secret", "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW"
     )
 

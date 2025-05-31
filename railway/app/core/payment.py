@@ -19,15 +19,17 @@ class PaymobManager:
         self.auth_token = None
 
     def authenticate(self) -> str:
-        url = "https://accept.paymobsolutions.com/api/acceptance/post_pay"
+        url = "https://accept.paymob.com/api/auth/tokens"  # Corrected URL
         payload = {"api_key": self.config["api_key"]}
 
         try:
             response = requests.post(url, json=payload)
             response.raise_for_status()
             self.auth_token = response.json().get("token")
+            if not self.auth_token:
+                raise ValueError("No token received from Paymob")
             return self.auth_token
-        except Exception as e:
+        except requests.exceptions.RequestException as e:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail=f"Paymob authentication failed: {str(e)}",
@@ -107,28 +109,38 @@ class PaymobManager:
                 detail=f"Paymob payment key request failed: {str(e)}",
             )
 
-    def verify_hmac(self, request_data: Dict, hmac: str) -> bool:
-        concatenated = "".join(
-            [
-                str(request_data.get("amount", "")),
-                str(request_data.get("created_at", "")),
-                str(request_data.get("currency", "")),
-                str(request_data.get("error_occured", "")),
-                str(request_data.get("id", "")),
-                str(request_data.get("integration_id", "")),
-                str(request_data.get("is_3d_secure", "")),
-                str(request_data.get("order", "").get("id", "")),
-                str(request_data.get("pending", "")),
-                str(request_data.get("source_data", "").get("pan", "")),
-                str(request_data.get("source_data", "").get("sub_type", "")),
-                str(request_data.get("success", "")),
-            ]
-        )
+    # Update the authenticate method
 
-        calculated_hmac = hmac.new(
-            self.config["hmac_secret"].encode("utf-8"),
-            concatenated.encode("utf-8"),
-            hashlib.sha512,
+    # Update HMAC verification
+    def verify_hmac(self, request_data: Dict, received_hmac: str) -> bool:
+        # Paymob's required order of fields for HMAC calculation
+        required_fields = [
+            str(request_data.get("amount_cents", "")),
+            str(request_data.get("created_at", "")),
+            str(request_data.get("currency", "")),
+            str(request_data.get("error_occured", "")),
+            str(request_data.get("has_parent_transaction", "")),
+            str(request_data.get("id", "")),
+            str(request_data.get("integration_id", "")),
+            str(request_data.get("is_3d_secure", "")),
+            str(request_data.get("is_auth", "")),
+            str(request_data.get("is_capture", "")),
+            str(request_data.get("is_refunded", "")),
+            str(request_data.get("is_standalone_payment", "")),
+            str(request_data.get("is_voided", "")),
+            str(request_data.get("order", {}).get("id", "")),
+            str(request_data.get("owner", "")),
+            str(request_data.get("pending", "")),
+            str(request_data.get("source_data", {}).get("pan", "")),
+            str(request_data.get("source_data", {}).get("sub_type", "")),
+            str(request_data.get("success", "")),
+            str(request_data.get("terminal_id", "")),
+            str(request_data.get("txn_response_code", "")),
+        ]
+
+        concatenated = "".join(required_fields)
+        calculated_hmac = hashlib.sha512(
+            self.config["hmac_secret"].encode() + concatenated.encode()
         ).hexdigest()
 
-        return hmac == calculated_hmac
+        return calculated_hmac == received_hmac

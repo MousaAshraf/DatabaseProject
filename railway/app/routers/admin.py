@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from db.database import SessionLocal
-from utils.permissions import require_admin
+from utils.permissions import get_admin_user
 from crud import user as user_crud
 from schemas.user import UserResponse
 from datetime import date
@@ -21,7 +21,7 @@ def get_db():
 @router.get(
     "/users",
     response_model=list[UserResponse],
-    dependencies=[Depends(require_admin)],
+    dependencies=[Depends(get_admin_user)],
 )
 def get_users(db: Session = Depends(get_db)):
     return db.query(user_crud.User).all()
@@ -29,7 +29,7 @@ def get_users(db: Session = Depends(get_db)):
 
 @router.get("/ticket_logs")
 def get_ticket_logs(
-    db: Session = Depends(get_db), dependencies=[Depends(require_admin)]
+    db: Session = Depends(get_db), dependencies=[Depends(get_admin_user)]
 ):
     return db.query(Ticket).all()
 

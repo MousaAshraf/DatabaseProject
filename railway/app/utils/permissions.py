@@ -5,7 +5,7 @@ from db.database import get_db
 from db.models import User
 from core.security import decode_token
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/")
 
 
 def get_current_user(
@@ -28,9 +28,10 @@ def get_current_user(
     return user
 
 
-# Additional fix for utils/permissions.py to ensure admin checking works
-def get_admin_user(current_user: User = Depends(get_current_user)):
-    """Dependency to ensure current user is an admin"""
-    if not hasattr(current_user, "is_admin") or not current_user.is_admin:
-        raise HTTPException(status_code=403, detail="Admin access required")
+def require_admin(current_user: User = Depends(get_current_user)) -> User:
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin privileges required",
+        )
     return current_user

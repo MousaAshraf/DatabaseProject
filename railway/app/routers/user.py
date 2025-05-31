@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from db.database import get_db
 from db.models import User
 from schemas.user import UserCreate, UserResponse, UserUpdate
-from crud.user import create_user, get_user, get_users, update_user, delete_user
+from crud.user import create_user, get_user, get_users, update_user
 from dependencies import get_current_user, require_admin
 from typing import List
 
@@ -63,24 +63,16 @@ def read_user(
 @router.put("/{user_id}", response_model=UserResponse)
 def update_user_route(
     user_id: str,
-    user: UserUpdate,
+    user_update: UserUpdate,
+    current_user=Depends(get_current_user),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
-    if user_id != current_user.id:
+    db_user = get_user(db, user_id)
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if db_user.id != current_user.id and not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Not authorized")
 
-    db_user = update_user(db=db, user_id=user_id, user_update=user)
-    if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return db_user
-
-
-@router.delete("/{user_id}")
-def delete_user_route(
-    user_id: str,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin),
-):
-    delete_user(db=db, user_id=user_id)
-    return {"message": "User deleted successfully"}
+    updated_user = update_user(db, user_id, user_update)
+    return updated_user  # FastAPI will use UserResponse to serialize it
